@@ -7,7 +7,6 @@ function guardarCarrito(carrito) {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
-
 let carrito = cargarCarrito();
 
 function productoClick(nombre, precio) {
@@ -25,7 +24,9 @@ function productoClick(nombre, precio) {
 
     guardarCarrito(carrito);
     mostrarMensaje(nombre + " agregado al carrito");
+    mostrarCarrito();
 }
+
 function verCarrito() {
     let texto = "CARRITO:\n\n";
 
@@ -35,8 +36,8 @@ function verCarrito() {
 
     alert(texto);
 }
+
 function generarPDF() {
-    // 👉 leer datos del cliente
     let nombre = document.getElementById("clienteNombre").value.trim();
     let telefono = document.getElementById("clienteTelefono").value.trim();
     let provincia = document.getElementById("clienteProvincia").value.trim();
@@ -44,7 +45,6 @@ function generarPDF() {
     let hoy = new Date();
     let fecha = hoy.toLocaleDateString("es-AR");
 
-    // 👉 VALIDACIONES
     if (nombre === "") {
         mostrarMensaje("Por favor ingresá tu nombre");
         return;
@@ -70,7 +70,6 @@ function generarPDF() {
         return;
     }
 
-    // 👉 si todo está bien, recién ahora creamos el PDF
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF();
 
@@ -117,11 +116,8 @@ function generarPDF() {
 
     pdf.save("pedido.pdf");
 }
-function vaciarCarrito() {
-    carrito = [];
-    localStorage.removeItem("carrito");
-    actualizarContador();
-}
+
+
 
 function enviarWhatsApp() {
     let nombre = document.getElementById("clienteNombre").value.trim();
@@ -147,6 +143,7 @@ function enviarWhatsApp() {
 
     mostrarMensaje("Pedido enviado correctamente");
 }
+
 function mostrarMensaje(texto) {
     let mensaje = document.getElementById("mensaje");
     if (!mensaje) return;
@@ -158,3 +155,43 @@ function mostrarMensaje(texto) {
         mensaje.classList.remove("activo");
     }, 2500);
 }
+
+function mostrarCarrito() {
+    let contenedor = document.getElementById("carrito");
+    if (!contenedor) return;
+
+    if (carrito.length === 0) {
+        contenedor.innerHTML = "<p>El carrito está vacío</p>";
+        return;
+    }
+
+    let html = "<ul>";
+    let total = 0;
+
+    carrito.forEach(p => {
+        let subtotal = p.precio * p.cantidad;
+        total += subtotal;
+
+        html += `
+            <li>
+                ${p.nombre} x${p.cantidad}  =$${subtotal}
+            </li >
+        `;
+    });
+
+    html += "</ul>";
+    html += ` <p>Total: $${total}</p>`;
+
+    contenedor.innerHTML = html;
+    actualizarContador()
+}
+mostrarCarrito();
+function vaciarCarrito() {
+    carrito = [];
+    location.reload();
+    localStorage.removeItem("carrito");
+    actualizarContador();
+    mostrarCarrito();
+    mostrarMensaje("Carrito vacío");
+}
+mostrarCarrito();

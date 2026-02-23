@@ -48,14 +48,14 @@ ul {
 
 }
 
-li {
+nav li {
     border: 3px solid white;
     border-radius: 4vh;
     padding: 20px;
     margin: 10px;
 }
 
-li:hover {
+nav li:hover {
     background-color: rgba(0, 0, 0, 0.705);
     text-shadow: 0px 0px 20px rgb(255, 255, 255);
     cursor: pointer;
@@ -287,4 +287,40 @@ body {
     border: solid 4px #000;
     color: #ffffff;
     text-shadow: 0px 0px 10px #000;
+}
+
+#carrito ul {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+
+}
+
+#carrito li {
+    color: #fff;
+}
+
+#carrito p {
+    margin-top: 20px;
+    font-size: 40px;
+    color: #fff;
+    border: solid 2px #fff;
+    border-radius: 4vh;
+    padding: 20px;
+}
+
+#carrito {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+#datomain {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    gap: 30%;
+    border: 1px solid #fff;
+    border-radius: 4vh;
+    padding: 10px;
 }
