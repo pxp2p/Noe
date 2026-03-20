@@ -1,6 +1,3 @@
-// =====================
-// CARRITO (STORAGE)
-// =====================
 function cargarCarrito() {
     let data = localStorage.getItem("carrito");
     return data ? JSON.parse(data) : [];
@@ -11,7 +8,6 @@ function guardarCarrito() {
 }
 
 let carrito = cargarCarrito();
-
 // =====================
 // PRODUCTOS
 // =====================
@@ -26,7 +22,6 @@ function productoClick(nombre, precio) {
 
     guardarCarrito();
     mostrarMensaje(nombre + " agregado al carrito");
-    actualizarContador();
     mostrarCarrito();
 }
 
@@ -61,7 +56,7 @@ function mostrarCarrito() {
         `;
     });
 
-    html += `</ul><p>Total: $${total}</p>`;
+    html += `</ul><p><strong>Total: $${total}</strong></p>`;
     contenedor.innerHTML = html;
 }
 
@@ -80,7 +75,6 @@ function vaciarCarrito() {
     carrito = [];
     localStorage.removeItem("carrito");
     mostrarCarrito();
-    mostrarMensaje("Carrito vacío");
 }
 
 // =====================
@@ -99,41 +93,79 @@ function mostrarMensaje(texto) {
 }
 
 // =====================
-// WHATSAPP + PDF
+// VALIDACIÓN
 // =====================
-function generarPDF() {
-    if (carrito.length === 0) return;
+function obtenerDatosCliente() {
+    let nombre = document.getElementById("clienteNombre").value.trim();
+    let telefono = document.getElementById("clienteTelefono").value.trim();
+    let provincia = document.getElementById("clienteProvincia").value.trim();
+    let direccion = document.getElementById("clienteDireccion").value.trim();
 
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF();
+    if (!nombre || !telefono || !provincia || !direccion) {
+        mostrarMensaje("Completa todos los datos");
+        return null;
+    }
 
-    let y = 15;
-    pdf.setFontSize(16);
-    pdf.text("PEDIDO", 10, y);
-    y += 10;
-
-    carrito.forEach(p => {
-        pdf.text(`${p.nombre} x${p.cantidad} - $${p.precio * p.cantidad}`, 10, y);
-        y += 7;
-    });
-
-    pdf.save("pedido.pdf");
+    return { nombre, telefono, provincia, direccion };
 }
 
+// =====================
+// GENERAR MENSAJE
+// =====================
+function generarMensaje(datos) {
+    let fecha = new Date().toLocaleString();
+
+    let texto = `📦 PEDIDO - No0é\n`;
+    texto += `📅 Fecha: ${fecha}\n\n`;
+
+    texto += `👤 Cliente: ${datos.nombre}\n`;
+    texto += `📞 Teléfono: ${datos.telefono}\n`;
+    texto += `📍 Provincia: ${datos.provincia}\n`;
+    texto += `🏠 Dirección: ${datos.direccion}\n\n`;
+
+    texto += `🛒 Productos:\n`;
+
+    let total = 0;
+
+    carrito.forEach(p => {
+        let subtotal = p.precio * p.cantidad;
+        total += subtotal;
+
+        texto += `- ${p.nombre} x${p.cantidad} ($${subtotal})\n`;
+    });
+
+    texto += `\n💰 Total: $${total}`;
+
+    return texto;
+}
+
+// =====================
+// ENVÍO FINAL
+// =====================
 function enviarWhatsApp() {
     if (carrito.length === 0) {
         mostrarMensaje("El carrito está vacío");
         return;
     }
 
-    generarPDF();
+    let datos = obtenerDatosCliente();
+    if (!datos) return;
 
-    let mensaje = "Nuevo pedido";
-    let url = `https://wa.me/5491128884710?text=${mensaje}`;
+    let mensaje = generarMensaje(datos);
+
+    // MAILTO
+    let mail = "mailto:joaquinpereirahernan@gmail.com" +
+        "?subject=" + encodeURIComponent("Nuevo pedido - Noé") +
+        "&body=" + encodeURIComponent(mensaje);
+
+    window.location.href = mail;
+
+    // WHATSAPP
+    let url = "https://wa.me/5491128884710?text=" + encodeURIComponent("Hola, acabo de hacer un pedido!");
     window.open(url, "_blank");
 
     vaciarCarrito();
-    mostrarMensaje("Pedido enviado correctamente");
+    mostrarMensaje("Pedido listo para enviar");
 }
 
 // =====================
