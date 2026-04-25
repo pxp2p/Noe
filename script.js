@@ -140,7 +140,7 @@ function obtenerDatosCliente() {
 function generarMensaje(datos) {
     let fecha = new Date().toLocaleString();
 
-    let texto = `📦 PEDIDO - Noé\n`;
+    let texto = `📦 PEDIDO - Distribuidora Noé\n`;
     texto += `📅 Fecha: ${fecha}\n\n`;
 
     texto += `👤 Cliente: ${datos.nombre}\n`;
