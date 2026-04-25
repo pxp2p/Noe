@@ -1,3 +1,6 @@
+// =====================
+// STORAGE
+// =====================
 function cargarCarrito() {
     let data = localStorage.getItem("carrito");
     return data ? JSON.parse(data) : [];
@@ -8,25 +11,43 @@ function guardarCarrito() {
 }
 
 let carrito = cargarCarrito();
+
 // =====================
 // PRODUCTOS
 // =====================
-function productoClick(nombre, precio) {
+function productoClick(nombre, precio, imagen) {
     let producto = carrito.find(p => p.nombre === nombre);
 
     if (producto) {
         producto.cantidad++;
     } else {
-        carrito.push({ nombre, precio, cantidad: 1 });
+        carrito.push({ nombre, precio, imagen, cantidad: 1 });
     }
 
     guardarCarrito();
     mostrarMensaje(nombre + " agregado al carrito");
     mostrarCarrito();
+    mostrarTotal();
 }
 
 // =====================
-// CARRITO EN PANTALLA
+// TOTAL (SIEMPRE VISIBLE)
+// =====================
+function mostrarTotal() {
+    let contenedorTotal = document.getElementById("totalCarrito");
+    if (!contenedorTotal) return;
+
+    let total = 0;
+
+    carrito.forEach(p => {
+        total += p.precio * p.cantidad;
+    });
+
+    contenedorTotal.textContent = "Total: $" + total;
+}
+
+// =====================
+// CARRITO EN PANTALLA (SOLO FINALIZAR)
 // =====================
 function mostrarCarrito() {
     let contenedor = document.getElementById("carrito");
@@ -38,25 +59,27 @@ function mostrarCarrito() {
     }
 
     let html = "<ul>";
-    let total = 0;
 
     carrito.forEach((p, index) => {
         let subtotal = p.precio * p.cantidad;
-        total += subtotal;
 
         html += `
-            <li>
-                <strong>${p.nombre}</strong><br>
-                $${p.precio} x ${p.cantidad}<br>
-                <button onclick="cambiarCantidad(${index}, -1)">➖</button>
-                <button onclick="cambiarCantidad(${index}, 1)">➕</button>
-                <span> Subtotal: $${subtotal}</span>
-            </li>
-            <hr>
-        `;
+    <li>
+        <section class="karrito">
+        <img src="${p.imagen}" style="width:60px; height:60px; object-fit:cover;">
+        <strong>${p.nombre}</strong>
+        $${p.precio} x ${p.cantidad}
+        </section>
+        <section class="karrito2">
+        <button onclick="cambiarCantidad(${index}, -1)">➖</button>
+        <button onclick="cambiarCantidad(${index}, 1)">➕</button>
+        <span> Subtotal: $${subtotal}</span>
+        </section>
+    </li>
+`;
     });
 
-    html += `</ul><p><strong>Total: $${total}</strong></p>`;
+    html += `</ul>`;
     contenedor.innerHTML = html;
 }
 
@@ -69,12 +92,14 @@ function cambiarCantidad(index, cambio) {
 
     guardarCarrito();
     mostrarCarrito();
+    mostrarTotal();
 }
 
 function vaciarCarrito() {
     carrito = [];
     localStorage.removeItem("carrito");
     mostrarCarrito();
+    mostrarTotal();
 }
 
 // =====================
@@ -115,7 +140,7 @@ function obtenerDatosCliente() {
 function generarMensaje(datos) {
     let fecha = new Date().toLocaleString();
 
-    let texto = `📦 PEDIDO - No0é\n`;
+    let texto = `📦 PEDIDO - Noé\n`;
     texto += `📅 Fecha: ${fecha}\n\n`;
 
     texto += `👤 Cliente: ${datos.nombre}\n`;
@@ -153,24 +178,18 @@ function enviarWhatsApp() {
 
     let mensaje = generarMensaje(datos);
 
-    // MAILTO
-    let mail = "mailto:joaquinpereirahernan@gmail.com" +
-        "?subject=" + encodeURIComponent("Nuevo pedido - Noé") +
-        "&body=" + encodeURIComponent(mensaje);
-
-    window.location.href = mail;
-
-    // WHATSAPP
-    let url = "https://wa.me/5491128884710?text=" + encodeURIComponent("Hola, acabo de hacer un pedido!");
+    // WHATSAPP (ENVÍA EL PEDIDO REAL)
+    let url = "https://wa.me/5491128884710?text=" + encodeURIComponent(mensaje);
     window.open(url, "_blank");
 
     vaciarCarrito();
-    mostrarMensaje("Pedido listo para enviar");
+    mostrarMensaje("Pedido enviado");
 }
 
 // =====================
 // INIT
 // =====================
 document.addEventListener("DOMContentLoaded", () => {
-    mostrarCarrito();
+    mostrarCarrito(); // solo si existe
+    mostrarTotal();   // siempre visible
 });
